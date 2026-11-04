@@ -1,0 +1,7 @@
+flask
+requests
+gunicorn
+discord.py
+aiosqlite
+feedparser
+python-dotenv
