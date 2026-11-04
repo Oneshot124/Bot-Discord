@@ -84,7 +84,7 @@ class Economie(commands.Cog):
             return
 
         rebirth_lvl = await db.get_user_rebirth(user_id)
-        salaire_base = random.randint(50, 150)
+        salaire_base = random.randint(170, 250)
         salaire = int(salaire_base * (1.5 ** rebirth_lvl))
 
         jobs = [
