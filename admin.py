@@ -5,7 +5,7 @@ from discord.ext import commands
 import database as db
 
 ADMIN_ROLE_IDS = [
-    1555927214254596126,
+    1562121971259539476,
 ]
 
 
