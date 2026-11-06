@@ -42,7 +42,7 @@ class Reglement(commands.Cog):
         view = RulesButtonView()
         
         embed = discord.Embed(
-            title="📜 Règlement de E x L's Community",
+            title="📜 Règlement de Eloualextim's Community",
             description=texte,
             color=discord.Color.blue()
         )
