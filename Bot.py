@@ -1,55 +1,53 @@
 import os
-from pathlib import Path
+import asyncio
 import discord
-from discord import app_commands
 from discord.ext import commands
-from dotenv import load_dotenv
+from app import keep_alive
 
-import database as db
-
-env_path = Path(__file__).resolve().parent / ".env"
-load_dotenv(dotenv_path=env_path)
-
-token = os.getenv("DISCORD_TOKEN")
-if not token:
-    raise ValueError("❌ Le token Discord est introuvable dans le fichier .env ou les variables d'environnement !")
-
+# Intents nécessaires pour le bot
 intents = discord.Intents.default()
-intents.message_content = True
 intents.members = True
+intents.message_content = True
+intents.voice_states = True
 
-class MonBot(commands.Bot):
+class MyBot(commands.Bot):
     def __init__(self):
-        super().__init__(command_prefix="!!", intents=intents)
+        super().__init__(command_prefix="!", intents=intents)
 
     async def setup_hook(self):
-        await db.init_db()
-
-        # Chargement direct des fichiers .py situés à la racine
+        # 1. Chargement de tous les fichiers .py (Cogs)
         for filename in os.listdir("."):
-            if filename.endswith(".py") and filename not in ["Bot.py", "app.py", "database.py", "s'abonner.py"]:
+            if filename.endswith(".py") and filename not in [
+                "Bot.py",
+                "app.py",
+                "database.py",
+                "s'abonner.py",
+            ]:
                 cog_name = filename[:-3]
-                await self.load_extension(cog_name)
+                try:
+                    await self.load_extension(cog_name)
+                    print(f"✅ Extension chargée : {cog_name}")
+                except Exception as e:
+                    print(f"❌ Erreur lors du chargement de {cog_name} : {e}")
 
-        await self.tree.sync()
-        print("✅ Base de données et extensions chargées avec succès !")
+        # 2. Synchronisation instantanée des commandes sur tes serveurs
+        # (Copie les commandes directement sur chaque serveur où se trouve le bot)
+        for guild in self.guilds:
+            self.tree.copy_global_to(guild=guild)
+            await self.tree.sync(guild=guild)
+            print(f"⚡ Commandes synchronisées instantanément pour le serveur : {guild.name}")
 
     async def on_ready(self):
-        print(f"🤖 Bot connecté sous le nom : {self.user.name}")
+        print(f"🤖 Bot connecté en tant que {self.user} (ID: {self.user.id})")
 
-bot = MonBot()
+bot = MyBot()
 
-@bot.tree.error
-async def on_app_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
-    if isinstance(error, app_commands.CommandOnCooldown):
-        heures, minutes = int(error.retry_after // 3600), int((error.retry_after % 3600) // 60)
-        await interaction.response.send_message(f"⏳ Reviens dans **{heures}h et {minutes}min** !", ephemeral=True)
-    elif isinstance(error, app_commands.MissingPermissions):
-        await interaction.response.send_message("❌ Tu n'as pas la permission d'exécuter cette commande.", ephemeral=True)
-    else:
-        print(f"Erreur d'exécution : {error}")
-        if not interaction.response.is_done():
-            await interaction.response.send_message("❌ Une erreur inattendue est survenue.", ephemeral=True)
+# Démarre le serveur Flask web pour UptimeRobot
+keep_alive()
 
-if __name__ == "__main__":
+# Lancement du bot avec le Token d'environnement
+token = os.environ.get("DISCORD_TOKEN")
+if token:
     bot.run(token)
+else:
+    print("❌ Erreur : Le token DISCORD_TOKEN est introuvable.")
