@@ -14,7 +14,7 @@ class RulesButtonView(discord.ui.View):
     )
     async def accept_rules(self, interaction: discord.Interaction, button: discord.ui.Button):
         # ⚠️ MODIFIE "Membre" ci-dessous par le nom EXACT de ton rôle sur Discord !
-        nom_du_role = "Membre" 
+        nom_du_role = "✅・Membre" 
         
         role = discord.utils.get(interaction.guild.roles, name=nom_du_role)
         
