@@ -4,7 +4,7 @@ from discord import app_commands
 
 class RulesButtonView(discord.ui.View):
     def __init__(self):
-        super().__init__(timeout=None) # Le bouton neexpire jamais
+        super().__init__(timeout=None)
 
     @discord.ui.button(
         label="J'accepte le règlement", 
@@ -13,12 +13,14 @@ class RulesButtonView(discord.ui.View):
         custom_id="persistent_accept_rules"
     )
     async def accept_rules(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Cherche automatiquement le rôle "Membre" sur le serveur
-        role = discord.utils.get(interaction.guild.roles, name="Membre")
+        # ⚠️ MODIFIE "Membre" ci-dessous par le nom EXACT de ton rôle sur Discord !
+        nom_du_role = "Membre" 
+        
+        role = discord.utils.get(interaction.guild.roles, name=nom_du_role)
         
         if not role:
             await interaction.response.send_message(
-                "❌ Le rôle **Membre** est introuvable sur ce serveur. Demande à un administrateur de le créer !", 
+                f"❌ Le rôle **{nom_du_role}** est introuvable sur ce serveur. Vérifie son orthographe dans le code !", 
                 ephemeral=True
             )
             return
@@ -32,7 +34,6 @@ class RulesButtonView(discord.ui.View):
 class Reglement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # Enregistre la vue de manière persistante pour que le bouton marche même après un redémarrage du bot
         self.bot.add_view(RulesButtonView())
 
     @app_commands.command(name="message-staff", description="Envoie le message de règlement avec un bouton d'acceptation interactif.")
@@ -42,13 +43,12 @@ class Reglement(commands.Cog):
         view = RulesButtonView()
         
         embed = discord.Embed(
-            title="📜 Règlement de Eloualextim's Community",
+            title="📜 Règlement de E x L's Community",
             description=texte,
             color=discord.Color.blue()
         )
         embed.set_footer(text="Clique sur le bouton ci-dessous pour débloquer l'accès au serveur.")
 
-        # Envoie l'embed avec le bouton dans le salon actuel
         await interaction.channel.send(embed=embed, view=view)
         await interaction.response.send_message("✅ Le message de règlement a été généré et envoyé avec succès !", ephemeral=True)
 
