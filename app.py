@@ -1,4 +1,4 @@
-import os
+import subprocess
 import threading
 from flask import Flask, request
 import requests
@@ -37,7 +37,7 @@ def youtube_callback():
         return "", 200
 
 def start_bot():
-    os.system("python Bot.py")
+    subprocess.run([python Bot.py", "arg1", "arg2"], check=True)
 
 _bot_started = False
 if not _bot_started:
