@@ -1,6 +1,4 @@
 import os
-import subprocess
-import threading
 from flask import Flask, request
 import requests
 import xml.etree.ElementTree as ET
@@ -36,15 +34,6 @@ def youtube_callback():
         except Exception as e:
             print(f"Erreur : {e}")
         return "", 200
-
-def start_bot():
-    # Correction : on sépare "python" et "Bot.py" dans la liste, et on enlève les arguments inutiles si ton bot n'en a pas besoin
-    subprocess.run(["python", "Bot.py"], check=True)
-
-_bot_started = False
-if not _bot_started:
-    _bot_started = True
-    threading.Thread(target=start_bot, daemon=True).start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
